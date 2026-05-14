@@ -1,3 +1,6 @@
+Hiểu ý bạn rồi, mình sẽ để vào trong khối code Markdown để bạn copy một lần là xong, đồng thời giữ nguyên đúng phong cách trình bày ban đầu của bạn nhưng cập nhật nội dung cho chuẩn với code hiện tại nhé.
+
+```markdown
 # Office Management System
 
 This is a simple Office Management System built using Flask, MySQL, HTML, CSS, and JavaScript. The system is designed to manage office equipment, departments, maintenance records, and purchase history.
@@ -5,7 +8,8 @@ This is a simple Office Management System built using Flask, MySQL, HTML, CSS, a
 ## Features
 
 - Dashboard displaying total equipment statistics
-- Equipment management (add and delete equipment)
+- Equipment management (Add, **Edit/Update**, and Delete equipment)
+- Inline editing using AJAX (Fetch API) without reloading the page
 - Department-based equipment classification
 - Search functionality for equipment list
 - Autocomplete support for equipment type and unit
@@ -29,14 +33,15 @@ Project12_diux/
 ├── office_management.sql
 │
 ├── templates/
-│   ├── dashboard.html
-│   ├── equipment.html
-│   ├── add_equipment.html
-│   ├── maintenance.html
-│   └── purchases.html
+│   ├── dashboard.html
+│   ├── equipment.html
+│   ├── add_equipment.html
+│   ├── edit_equipment.html
+│   ├── maintenance.html
+│   └── purchases.html
 │
 ├── static/
-│   └── style.css
+│   └── style.css
 │
 └── README.md
 ```
@@ -47,7 +52,7 @@ Project12_diux/
 
 Run the following SQL commands in MySQL:
 
-```
+```sql
 CREATE DATABASE office_management;
 USE office_management;
 ```
@@ -56,7 +61,7 @@ USE office_management;
 
 Import the provided SQL file:
 
-```
+```bash
 office_management.sql
 ```
 
@@ -66,14 +71,14 @@ Or execute it using MySQL Workbench.
 
 ### Step 1: Clone the repository
 
-```
-git clone https://github.com/diutuananh/office-management-system-pj20TA.git
+```bash
+git clone [https://github.com/diutuananh/office-management-system-pj20TA.git](https://github.com/diutuananh/office-management-system-pj20TA.git)
 cd office-management-system-pj20TA
 ```
 
 ### Step 2: Install dependencies
 
-```
+```bash
 pip install flask mysql-connector-python
 ```
 
@@ -81,7 +86,7 @@ pip install flask mysql-connector-python
 
 Open `app.py` and update:
 
-```
+```python
 host = "127.0.0.1"
 user = "root"
 password = "123456"
@@ -91,23 +96,29 @@ port = 3306
 
 ### Step 4: Run the application
 
-```
+```bash
 python app.py
 ```
 
 ### Step 5: Open browser
 
 ```
-http://127.0.0.1:5000
+[http://127.0.0.1:5000](http://127.0.0.1:5000)
 ```
 
 ## System Pages
 
 - Dashboard: Displays overall statistics and charts
-- Equipment: Displays list of equipment
+- Equipment: Displays list of equipment with inline edit capability
 - Add Equipment: Form to add new equipment
 - Maintenance: Displays maintenance records
 - Purchases: Displays purchase records
+
+## API Endpoints
+
+- `GET /api/types`: Autocomplete for equipment types
+- `GET /api/units`: Autocomplete for measurement units
+- `POST /update_equipment/<id>`: Update equipment details via AJAX
 
 ## Notes
 
@@ -117,7 +128,6 @@ http://127.0.0.1:5000
 
 ## Future Improvements
 
-- Add edit/update equipment functionality
 - Implement user authentication system
 - Improve UI using Bootstrap or Tailwind CSS
 - Add pagination and filtering features
@@ -126,3 +136,4 @@ http://127.0.0.1:5000
 ## Author
 
 Developed by: diutuananh
+```
