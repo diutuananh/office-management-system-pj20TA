@@ -51,7 +51,7 @@
 
             </div>
 
-            <!-- FIX: thêm In Use -->
+            <!-- FIX: In Use -->
             <div class="card">
 
                 <h3>In Use</h3>
@@ -78,15 +78,11 @@
 
     </div>
 
-    <script src=
-    "https://cdn.jsdelivr.net/npm/chart.js">
-
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
 
-        const ctx =
-        document.getElementById('myChart');
+        const ctx = document.getElementById('myChart').getContext('2d');
 
         new Chart(ctx, {
 
@@ -97,9 +93,7 @@
                 labels: [
 
                     'Available',
-
                     'In Use',
-
                     'Maintenance'
 
                 ],
@@ -108,9 +102,9 @@
 
                     data: [
 
-                        {{ available | default(0) }},
-                        {{ in_use | default(0) }},
-                        {{ maintenance | default(0) }}
+                        Number({{ available }}),
+                        Number({{ in_use }}),
+                        Number({{ maintenance }})
 
                     ],
 
@@ -125,6 +119,13 @@
                     borderWidth: 2
 
                 }]
+            },
+
+            options: {
+
+                responsive: true,
+                maintainAspectRatio: false
+
             }
 
         });
