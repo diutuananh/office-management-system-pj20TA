@@ -51,6 +51,15 @@
 
             </div>
 
+            <!-- FIX: thêm In Use -->
+            <div class="card">
+
+                <h3>In Use</h3>
+
+                <p>{{ in_use }}</p>
+
+            </div>
+
             <div class="card">
 
                 <h3>Maintenance</h3>
@@ -89,6 +98,8 @@
 
                     'Available',
 
+                    'In Use',
+
                     'Maintenance'
 
                 ],
@@ -97,16 +108,16 @@
 
                     data: [
 
-                        "{{ available }}",
-
-                        "{{ maintenance }}"
+                        {{ available | default(0) }},
+                        {{ in_use | default(0) }},
+                        {{ maintenance | default(0) }}
 
                     ],
 
                     backgroundColor: [
 
                         '#2ecc71',
-
+                        '#f39c12',
                         '#e74c3c'
 
                     ],

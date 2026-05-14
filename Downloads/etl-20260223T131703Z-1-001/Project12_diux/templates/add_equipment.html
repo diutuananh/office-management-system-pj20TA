@@ -28,7 +28,7 @@
                 placeholder="Equipment Name"
                 required>
 
-            <!-- ✅ AUTOCOMPLETE TYPE -->
+            <!-- TYPE AUTOCOMPLETE -->
             <input
                 type="text"
                 name="type"
@@ -42,11 +42,19 @@
                 {% endfor %}
             </datalist>
 
+            <!-- UNIT AUTOCOMPLETE (FIX MỚI) -->
             <input
                 type="text"
                 name="unit"
-                placeholder="Unit"
+                placeholder="Unit (e.g Piece, Set...)"
+                list="unitList"
                 required>
+
+            <datalist id="unitList">
+                {% for u in units %}
+                    <option value="{{ u }}">
+                {% endfor %}
+            </datalist>
 
             <select name="status">
 

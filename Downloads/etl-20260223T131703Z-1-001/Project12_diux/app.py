@@ -13,7 +13,7 @@ def get_db_connection():
     )
 
 # ======================
-# DASHBOARD
+# DASHBOARD (FIX IN USE)
 # ======================
 @app.route('/')
 def dashboard():
@@ -29,13 +29,18 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) AS maintenance FROM Equipment WHERE Status='Maintenance'")
     maintenance = cursor.fetchone()['maintenance']
 
+    # ✅ FIX THÊM IN USE
+    cursor.execute("SELECT COUNT(*) AS in_use FROM Equipment WHERE Status='In Use'")
+    in_use = cursor.fetchone()['in_use']
+
     db.close()
 
     return render_template(
         'dashboard.html',
         total=total,
         available=available,
-        maintenance=maintenance
+        maintenance=maintenance,
+        in_use=in_use
     )
 
 # ======================
@@ -83,24 +88,29 @@ def add_equipment():
         db.close()
         return redirect('/equipment')
 
-    # lấy departments
+    # departments
     cursor.execute("SELECT * FROM Departments")
     departments = cursor.fetchall()
 
-    # lấy type để autocomplete
+    # type autocomplete
     cursor.execute("SELECT DISTINCT Type FROM Equipment")
     types = [row['Type'] for row in cursor.fetchall()]
+
+    # unit autocomplete
+    cursor.execute("SELECT DISTINCT Unit FROM Equipment")
+    units = [row['Unit'] for row in cursor.fetchall()]
 
     db.close()
 
     return render_template(
         'add_equipment.html',
         departments=departments,
-        types=types
+        types=types,
+        units=units
     )
 
 # ======================
-# DELETE EQUIPMENT (MỚI FIX)
+# DELETE EQUIPMENT
 # ======================
 @app.route('/delete_equipment/<int:id>')
 def delete_equipment(id):
@@ -114,7 +124,7 @@ def delete_equipment(id):
     return redirect('/equipment')
 
 # ======================
-# AUTOCOMPLETE API (MỚI FIX)
+# AUTOCOMPLETE TYPE API
 # ======================
 @app.route('/api/types')
 def get_types():
@@ -123,6 +133,20 @@ def get_types():
 
     cursor.execute("SELECT DISTINCT Type FROM Equipment")
     data = [row['Type'] for row in cursor.fetchall()]
+
+    db.close()
+    return jsonify(data)
+
+# ======================
+# AUTOCOMPLETE UNIT API
+# ======================
+@app.route('/api/units')
+def get_units():
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT DISTINCT Unit FROM Equipment")
+    data = [row['Unit'] for row in cursor.fetchall()]
 
     db.close()
     return jsonify(data)
@@ -157,4 +181,4 @@ def purchases():
 
 # ======================
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) 
