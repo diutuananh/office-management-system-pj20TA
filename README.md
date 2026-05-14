@@ -1,6 +1,3 @@
-Hiểu ý bạn rồi, mình sẽ để vào trong khối code Markdown để bạn copy một lần là xong, đồng thời giữ nguyên đúng phong cách trình bày ban đầu của bạn nhưng cập nhật nội dung cho chuẩn với code hiện tại nhé.
-
-```markdown
 # Office Management System
 
 This is a simple Office Management System built using Flask, MySQL, HTML, CSS, and JavaScript. The system is designed to manage office equipment, departments, maintenance records, and purchase history.
@@ -8,7 +5,7 @@ This is a simple Office Management System built using Flask, MySQL, HTML, CSS, a
 ## Features
 
 - Dashboard displaying total equipment statistics
-- Equipment management (Add, **Edit/Update**, and Delete equipment)
+- Equipment management (Add, Edit/Update, and Delete equipment)
 - Inline editing using AJAX (Fetch API) without reloading the page
 - Department-based equipment classification
 - Search functionality for equipment list
@@ -33,15 +30,15 @@ Project12_diux/
 ├── office_management.sql
 │
 ├── templates/
-│   ├── dashboard.html
-│   ├── equipment.html
-│   ├── add_equipment.html
+│   ├── dashboard.html
+│   ├── equipment.html
+│   ├── add_equipment.html
 │   ├── edit_equipment.html
-│   ├── maintenance.html
-│   └── purchases.html
+│   ├── maintenance.html
+│   └── purchases.html
 │
 ├── static/
-│   └── style.css
+│   └── style.css
 │
 └── README.md
 ```
@@ -72,7 +69,7 @@ Or execute it using MySQL Workbench.
 ### Step 1: Clone the repository
 
 ```bash
-git clone [https://github.com/diutuananh/office-management-system-pj20TA.git](https://github.com/diutuananh/office-management-system-pj20TA.git)
+git clone https://github.com/diutuananh/office-management-system-pj20TA.git
 cd office-management-system-pj20TA
 ```
 
@@ -103,7 +100,7 @@ python app.py
 ### Step 5: Open browser
 
 ```
-[http://127.0.0.1:5000](http://127.0.0.1:5000)
+http://127.0.0.1:5000
 ```
 
 ## System Pages
@@ -116,9 +113,9 @@ python app.py
 
 ## API Endpoints
 
-- `GET /api/types`: Autocomplete for equipment types
-- `GET /api/units`: Autocomplete for measurement units
-- `POST /update_equipment/<id>`: Update equipment details via AJAX
+- GET /api/types: Autocomplete for equipment types
+- GET /api/units: Autocomplete for measurement units
+- POST /update_equipment/<id>: Update equipment details via AJAX
 
 ## Notes
 
@@ -132,8 +129,3 @@ python app.py
 - Improve UI using Bootstrap or Tailwind CSS
 - Add pagination and filtering features
 - Deploy project to cloud hosting platforms
-
-## Author
-
-Developed by: diutuananh
-```
