@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Maintenance</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<a href="/">Dashboard</a>
+<a href="/equipment">Equipment</a>
+<a href="/maintenance">Maintenance</a>
+<a href="/purchases">Purchases</a>
+
+</div>
+
+<div class="main">
+
+<div class="topbar">
+OFFICE SYSTEM MANAGEMENT
+</div>
+
+<h1>Maintenance Records</h1>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Equipment ID</th>
+<th>Date</th>
+<th>Cost</th>
+</tr>
+
+{% for item in maintenances %}
+
+<tr>
+
+<td>{{ item.MaintenanceID }}</td>
+<td>{{ item.EquipmentID }}</td>
+<td>{{ item.MaintenanceDate }}</td>
+<td>{{ item.Cost }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</body>
+</html>
