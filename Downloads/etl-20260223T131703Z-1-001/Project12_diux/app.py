@@ -1,11 +1,8 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 import mysql.connector
 
 app = Flask(__name__)
 
-# ======================
-# DB CONNECTION
-# ======================
 def get_db_connection():
     return mysql.connector.connect(
         host="127.0.0.1",
@@ -26,18 +23,10 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) AS total FROM Equipment")
     total = cursor.fetchone()['total']
 
-    cursor.execute("""
-        SELECT COUNT(*) AS available
-        FROM Equipment
-        WHERE Status = 'Available'
-    """)
+    cursor.execute("SELECT COUNT(*) AS available FROM Equipment WHERE Status='Available'")
     available = cursor.fetchone()['available']
 
-    cursor.execute("""
-        SELECT COUNT(*) AS maintenance
-        FROM Equipment
-        WHERE Status = 'Maintenance'
-    """)
+    cursor.execute("SELECT COUNT(*) AS maintenance FROM Equipment WHERE Status='Maintenance'")
     maintenance = cursor.fetchone()['maintenance']
 
     db.close()
@@ -50,7 +39,7 @@ def dashboard():
     )
 
 # ======================
-# EQUIPMENT
+# EQUIPMENT LIST
 # ======================
 @app.route('/equipment')
 def equipment():
@@ -58,16 +47,10 @@ def equipment():
     cursor = db.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT
-            Equipment.EquipmentID,
-            Equipment.EquipmentName,
-            Equipment.Type,
-            Equipment.Unit,
-            Equipment.Status,
-            Departments.DepartmentName
-        FROM Equipment
-        JOIN Departments
-        ON Equipment.DepartmentID = Departments.DepartmentID
+        SELECT e.*, d.DepartmentName
+        FROM Equipment e
+        JOIN Departments d ON e.DepartmentID = d.DepartmentID
+        ORDER BY e.EquipmentID ASC
     """)
 
     equipments = cursor.fetchall()
@@ -84,7 +67,6 @@ def add_equipment():
     cursor = db.cursor(dictionary=True)
 
     if request.method == 'POST':
-
         cursor.execute("""
             INSERT INTO Equipment
             (EquipmentName, Type, Unit, Status, DepartmentID)
@@ -101,12 +83,49 @@ def add_equipment():
         db.close()
         return redirect('/equipment')
 
+    # lấy departments
     cursor.execute("SELECT * FROM Departments")
     departments = cursor.fetchall()
 
+    # lấy type để autocomplete
+    cursor.execute("SELECT DISTINCT Type FROM Equipment")
+    types = [row['Type'] for row in cursor.fetchall()]
+
     db.close()
 
-    return render_template('add_equipment.html', departments=departments)
+    return render_template(
+        'add_equipment.html',
+        departments=departments,
+        types=types
+    )
+
+# ======================
+# DELETE EQUIPMENT (MỚI FIX)
+# ======================
+@app.route('/delete_equipment/<int:id>')
+def delete_equipment(id):
+    db = get_db_connection()
+    cursor = db.cursor()
+
+    cursor.execute("DELETE FROM Equipment WHERE EquipmentID=%s", (id,))
+    db.commit()
+
+    db.close()
+    return redirect('/equipment')
+
+# ======================
+# AUTOCOMPLETE API (MỚI FIX)
+# ======================
+@app.route('/api/types')
+def get_types():
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT DISTINCT Type FROM Equipment")
+    data = [row['Type'] for row in cursor.fetchall()]
+
+    db.close()
+    return jsonify(data)
 
 # ======================
 # MAINTENANCE
@@ -116,15 +135,11 @@ def maintenance():
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
-    cursor.execute("""
-        SELECT *
-        FROM Maintenance
-    """)
+    cursor.execute("SELECT * FROM Maintenance")
+    data = cursor.fetchall()
 
-    maintenances = cursor.fetchall()
     db.close()
-
-    return render_template('maintenance.html', maintenances=maintenances)
+    return render_template('maintenance.html', maintenances=data)
 
 # ======================
 # PURCHASES
@@ -134,18 +149,12 @@ def purchases():
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
-    cursor.execute("""
-        SELECT *
-        FROM Purchases
-    """)
+    cursor.execute("SELECT * FROM Purchases")
+    data = cursor.fetchall()
 
-    purchases = cursor.fetchall()
     db.close()
+    return render_template('purchases.html', purchases=data)
 
-    return render_template('purchases.html', purchases=purchases)
-
-# ======================
-# RUN APP
 # ======================
 if __name__ == '__main__':
     app.run(debug=True)

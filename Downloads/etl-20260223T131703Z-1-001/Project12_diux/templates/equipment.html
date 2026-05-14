@@ -51,6 +51,7 @@
                 <th>Unit</th>
                 <th>Status</th>
                 <th>Department</th>
+                <th>Actions</th>
             </tr>
 
             {% for item in equipments %}
@@ -62,7 +63,7 @@
                 <td>{{ item.Type }}</td>
                 <td>{{ item.Unit }}</td>
 
-                <!-- ================= STATUS FIX ================= -->
+                <!-- STATUS -->
                 <td>
                     {% set s = item.Status %}
 
@@ -87,6 +88,22 @@
                     {{ item.DepartmentName }}
                 </td>
 
+                <!-- DELETE -->
+                <td>
+                    <a href="/delete_equipment/{{ item.EquipmentID }}"
+                       onclick="return confirm('Are you sure you want to delete this equipment?')"
+                       style="
+                            background:#e74c3c;
+                            color:white;
+                            padding:6px 10px;
+                            border-radius:6px;
+                            text-decoration:none;
+                            font-size:13px;
+                        ">
+                        Delete
+                    </a>
+                </td>
+
             </tr>
 
             {% endfor %}
@@ -95,7 +112,7 @@
 
     </div>
 
-    <!-- ================= SEARCH SCRIPT ================= -->
+    <!-- SEARCH SCRIPT -->
     <script>
 
         function searchTable(){
