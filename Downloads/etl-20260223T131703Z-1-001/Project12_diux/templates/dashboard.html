@@ -2,135 +2,80 @@
 <html>
 
 <head>
-
     <title>Dashboard</title>
-
-    <link rel="stylesheet"
-    href="{{ url_for('static',
-    filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-
     <div class="sidebar">
-
         <a href="/">Dashboard</a>
-
         <a href="/equipment">Equipment</a>
-
         <a href="/maintenance">Maintenance</a>
-
         <a href="/purchases">Purchases</a>
-
     </div>
 
     <div class="main">
-
         <div class="topbar">
             OFFICE SYSTEM MANAGEMENT
         </div>
-
         <h1>Dashboard</h1>
-
         <div class="cards">
-
             <div class="card">
-
                 <h3>Total Equipment</h3>
-
                 <p>{{ total }}</p>
-
             </div>
-
             <div class="card">
-
                 <h3>Available</h3>
-
                 <p>{{ available }}</p>
-
             </div>
-
-            <!-- FIX: In Use -->
             <div class="card">
-
                 <h3>In Use</h3>
-
                 <p>{{ in_use }}</p>
-
             </div>
-
             <div class="card">
-
                 <h3>Maintenance</h3>
-
                 <p>{{ maintenance }}</p>
-
             </div>
-
         </div>
 
         <div class="chart-container">
-
             <canvas id="myChart"></canvas>
-
         </div>
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script>
-
         const ctx = document.getElementById('myChart').getContext('2d');
 
         new Chart(ctx, {
-
             type: 'pie',
-
             data: {
-
                 labels: [
-
                     'Available',
                     'In Use',
                     'Maintenance'
-
                 ],
-
                 datasets: [{
-
                     data: [
-
-                        Number({{ available }}),
-                        Number({{ in_use }}),
-                        Number({{ maintenance }})
-
+                        // Thêm dấu nháy đơn bọc biến Jinja để VS Code không báo lỗi syntax
+                        Number('{{ available }}'),
+                        Number('{{ in_use }}'),
+                        Number('{{ maintenance }}')
                     ],
-
                     backgroundColor: [
-
                         '#2ecc71',
                         '#f39c12',
                         '#e74c3c'
-
                     ],
-
                     borderWidth: 2
-
                 }]
             },
-
             options: {
-
                 responsive: true,
                 maintainAspectRatio: false
-
             }
-
         });
-
     </script>
-
 </body>
+
 </html>

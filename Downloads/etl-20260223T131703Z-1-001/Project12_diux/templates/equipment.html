@@ -56,40 +56,76 @@
 
             {% for item in equipments %}
 
-            <tr>
+            <tr id="row-{{ item.EquipmentID }}">
 
                 <td>{{ item.EquipmentID }}</td>
-                <td>{{ item.EquipmentName }}</td>
-                <td>{{ item.Type }}</td>
-                <td>{{ item.Unit }}</td>
 
-                <!-- STATUS -->
                 <td>
-                    {% set s = item.Status %}
+                    <span class="view name">{{ item.EquipmentName }}</span>
+                    <input class="edit name" type="text" value="{{ item.EquipmentName }}" style="display:none;">
+                </td>
 
-                    {% if s == 'Available' %}
-                        <span class="status available">{{ s }}</span>
+                <td>
+                    <span class="view type">{{ item.Type }}</span>
+                    <input class="edit type" type="text" value="{{ item.Type }}" style="display:none;">
+                </td>
 
-                    {% elif s == 'In Use' %}
-                        <span class="status in-use">{{ s }}</span>
+                <td>
+                    <span class="view unit">{{ item.Unit }}</span>
+                    <input class="edit unit" type="text" value="{{ item.Unit }}" style="display:none;">
+                </td>
 
-                    {% elif s == 'Maintenance' %}
-                        <span class="status maintenance">{{ s }}</span>
+                <td>
 
-                    {% elif s == 'Broken' %}
-                        <span class="status broken">{{ s }}</span>
+                    <span class="view status">
 
-                    {% else %}
-                        <span class="status">{{ s }}</span>
-                    {% endif %}
+                        {% set s = item.Status %}
+
+                        {% if s == 'Available' %}
+                            <span class="status available">{{ s }}</span>
+
+                        {% elif s == 'In Use' %}
+                            <span class="status in-use">{{ s }}</span>
+
+                        {% elif s == 'Maintenance' %}
+                            <span class="status maintenance">{{ s }}</span>
+
+                        {% elif s == 'Broken' %}
+                            <span class="status broken">{{ s }}</span>
+
+                        {% else %}
+                            <span class="status">{{ s }}</span>
+                        {% endif %}
+
+                    </span>
+
+                    <select class="edit status" style="display:none;">
+                        <option value="Available" {% if item.Status=='Available' %}selected{% endif %}>Available</option>
+                        <option value="In Use" {% if item.Status=='In Use' %}selected{% endif %}>In Use</option>
+                        <option value="Maintenance" {% if item.Status=='Maintenance' %}selected{% endif %}>Maintenance</option>
+                        <option value="Broken" {% if item.Status=='Broken' %}selected{% endif %}>Broken</option>
+                    </select>
+
                 </td>
 
                 <td>
                     {{ item.DepartmentName }}
                 </td>
 
-                <!-- DELETE -->
                 <td>
+
+                    <button onclick="enableEdit('{{ item.EquipmentID }}')"
+                        class="add-btn"
+                        style="padding:5px 10px;">
+                        Edit
+                    </button>
+
+                    <button onclick="saveEdit('{{ item.EquipmentID }}')"
+                        class="add-btn"
+                        style="padding:5px 10px; background:#27ae60; display:none;">
+                        Save
+                    </button>
+
                     <a href="/delete_equipment/{{ item.EquipmentID }}"
                        onclick="return confirm('Are you sure you want to delete this equipment?')"
                        style="
@@ -102,6 +138,7 @@
                         ">
                         Delete
                     </a>
+
                 </td>
 
             </tr>
@@ -112,33 +149,67 @@
 
     </div>
 
-    <!-- SEARCH SCRIPT -->
-    <script>
+<script>
 
-        function searchTable(){
+function enableEdit(id){
 
-            let input = document.getElementById("searchInput");
-            let filter = input.value.toLowerCase();
-            let table = document.querySelector("table");
-            let tr = table.getElementsByTagName("tr");
+    let row = document.getElementById("row-" + id);
 
-            for(let i = 1; i < tr.length; i++){
+    row.querySelectorAll(".view").forEach(e => e.style.display = "none");
+    row.querySelectorAll(".edit").forEach(e => e.style.display = "inline-block");
 
-                let td = tr[i].getElementsByTagName("td")[1];
+    row.querySelector("button[onclick*='saveEdit']").style.display = "inline-block";
+}
 
-                if(td){
+function saveEdit(id){
 
-                    let txtValue = td.textContent || td.innerText;
+    let row = document.getElementById("row-" + id);
 
-                    tr[i].style.display =
-                        txtValue.toLowerCase().includes(filter)
-                        ? ""
-                        : "none";
-                }
-            }
+    let data = {
+        name: row.querySelector(".edit.name").value,
+        type: row.querySelector(".edit.type").value,
+        unit: row.querySelector(".edit.unit").value,
+        status: row.querySelector(".edit.status").value
+    };
+
+    fetch("/update_equipment/" + id, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    }).then(res => {
+        if(res.ok){
+            location.reload();
         }
+    });
 
-    </script>
+}
+
+function searchTable(){
+
+    let input = document.getElementById("searchInput");
+    let filter = input.value.toLowerCase();
+    let table = document.querySelector("table");
+    let tr = table.getElementsByTagName("tr");
+
+    for(let i = 1; i < tr.length; i++){
+
+        let td = tr[i].getElementsByTagName("td")[1];
+
+        if(td){
+
+            let txtValue = td.textContent || td.innerText;
+
+            tr[i].style.display =
+                txtValue.toLowerCase().includes(filter)
+                ? ""
+                : "none";
+        }
+    }
+}
+
+</script>
 
 </body>
 </html>

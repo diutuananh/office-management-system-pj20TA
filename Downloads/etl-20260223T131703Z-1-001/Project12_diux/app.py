@@ -29,7 +29,6 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) AS maintenance FROM Equipment WHERE Status='Maintenance'")
     maintenance = cursor.fetchone()['maintenance']
 
-    # ✅ FIX THÊM IN USE
     cursor.execute("SELECT COUNT(*) AS in_use FROM Equipment WHERE Status='In Use'")
     in_use = cursor.fetchone()['in_use']
 
@@ -88,15 +87,12 @@ def add_equipment():
         db.close()
         return redirect('/equipment')
 
-    # departments
     cursor.execute("SELECT * FROM Departments")
     departments = cursor.fetchall()
 
-    # type autocomplete
     cursor.execute("SELECT DISTINCT Type FROM Equipment")
     types = [row['Type'] for row in cursor.fetchall()]
 
-    # unit autocomplete
     cursor.execute("SELECT DISTINCT Unit FROM Equipment")
     units = [row['Unit'] for row in cursor.fetchall()]
 
@@ -122,6 +118,67 @@ def delete_equipment(id):
 
     db.close()
     return redirect('/equipment')
+
+# ======================
+# EDIT EQUIPMENT (NEW)
+# ======================
+@app.route('/edit_equipment/<int:id>', methods=['GET', 'POST'])
+def edit_equipment(id):
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+
+    if request.method == 'POST':
+        cursor.execute("""
+            UPDATE Equipment
+            SET EquipmentName=%s,
+                Type=%s,
+                Unit=%s,
+                Status=%s,
+                DepartmentID=%s
+            WHERE EquipmentID=%s
+        """, (
+            request.form['name'],
+            request.form['type'],
+            request.form['unit'],
+            request.form['status'],
+            request.form['department'],
+            id
+        ))
+
+        db.commit()
+        db.close()
+        return redirect('/equipment')
+
+    cursor.execute("SELECT * FROM Equipment WHERE EquipmentID=%s", (id,))
+    equipment = cursor.fetchone()
+
+    cursor.execute("SELECT * FROM Departments")
+    departments = cursor.fetchall()
+
+    db.close()
+
+    return render_template(
+        'edit_equipment.html',
+        equipment=equipment,
+        departments=departments
+    )
+
+# ======================
+# UPDATE EQUIPMENT AJAX (Sửa lỗi thiếu route cho nút Save)
+# ======================
+@app.route('/update_equipment/<int:id>', methods=['POST'])
+def update_equipment(id):
+    data = request.get_json()
+    db = get_db_connection()
+    cursor = db.cursor()
+    cursor.execute("""
+        UPDATE Equipment 
+        SET EquipmentName=%s, Type=%s, Unit=%s, Status=%s 
+        WHERE EquipmentID=%s
+    """, (data['name'], data['type'], data['unit'], data['status'], id))
+    db.commit()
+    db.close()
+    return jsonify({"success": True})
 
 # ======================
 # AUTOCOMPLETE TYPE API
@@ -181,4 +238,4 @@ def purchases():
 
 # ======================
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)
