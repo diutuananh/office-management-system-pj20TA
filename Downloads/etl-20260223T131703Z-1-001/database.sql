@@ -1,18 +1,15 @@
+
 DROP DATABASE IF EXISTS office_management;
 CREATE DATABASE office_management;
 USE office_management;
 
--- =========================================
--- TABLE: Departments (CHỈ 1 BẢNG DUY NHẤT)
--- =========================================
+-- TABLE: Departments
 CREATE TABLE Departments (
     DepartmentID INT AUTO_INCREMENT PRIMARY KEY,
     DepartmentName VARCHAR(100) NOT NULL
 );
 
--- =========================================
 -- TABLE: Equipment
--- =========================================
 CREATE TABLE Equipment (
     EquipmentID INT AUTO_INCREMENT PRIMARY KEY,
     EquipmentName VARCHAR(100) NOT NULL,
@@ -23,9 +20,7 @@ CREATE TABLE Equipment (
     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
 );
 
--- =========================================
 -- TABLE: Maintenance
--- =========================================
 CREATE TABLE Maintenance (
     MaintenanceID INT AUTO_INCREMENT PRIMARY KEY,
     EquipmentID INT,
@@ -35,9 +30,7 @@ CREATE TABLE Maintenance (
     FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID)
 );
 
--- =========================================
--- TABLE: Purchases (CÓ QUANTITY)
--- =========================================
+-- TABLE: Purchases
 CREATE TABLE Purchases (
     PurchaseID INT AUTO_INCREMENT PRIMARY KEY,
     EquipmentID INT,
@@ -48,18 +41,14 @@ CREATE TABLE Purchases (
     FOREIGN KEY (EquipmentID) REFERENCES Equipment(EquipmentID)
 );
 
--- =========================================
 -- INSERT DATA: Departments
--- =========================================
 INSERT INTO Departments (DepartmentName) VALUES
 ('IT'),
 ('Human Resources'),
 ('Finance'),
 ('Marketing');
 
--- =========================================
 -- INSERT DATA: Equipment
--- =========================================
 INSERT INTO Equipment (EquipmentName, Type, Unit, Status, DepartmentID) VALUES
 ('Dell Latitude 5420', 'Laptop', 'Piece', 'In Use', 1),
 ('Dell Inspiron 15', 'Laptop', 'Piece', 'Available', 1),
@@ -82,18 +71,14 @@ INSERT INTO Equipment (EquipmentName, Type, Unit, Status, DepartmentID) VALUES
 ('Vacuum Cleaner', 'Cleaning Tool', 'Piece', 'Available', 2),
 ('Water Dispenser', 'Electrical Appliance', 'Piece', 'In Use', 1);
 
--- =========================================
 -- INSERT DATA: Maintenance
--- =========================================
 INSERT INTO Maintenance (EquipmentID, MaintenanceDate, Description, Cost) VALUES
 (6, '2026-05-01', 'Laptop battery replacement', 120.00),
 (11, '2026-05-03', 'Air conditioner gas refill', 150.00),
 (18, '2026-05-05', 'Microwave repair', 80.00),
 (9, '2026-05-10', 'Printer cleaning', 30.00);
 
--- =========================================
 -- INSERT DATA: Purchases
--- =========================================
 INSERT INTO Purchases (EquipmentID, PurchaseDate, Value, Quantity, Vendor) VALUES
 (1, '2025-01-10', 1200.00, 1, 'Dell Vietnam'),
 (2, '2025-01-15', 950.00, 1, 'Dell Vietnam'),
@@ -106,9 +91,7 @@ INSERT INTO Purchases (EquipmentID, PurchaseDate, Value, Quantity, Vendor) VALUE
 (11, '2025-04-15', 950.00, 1, 'Daikin Vietnam'),
 (17, '2025-04-20', 180.00, 1, 'Philips Store');
 
--- =========================================
 -- VIEW: Equipment by Department
--- =========================================
 CREATE VIEW EquipmentByDepartment AS
 SELECT
     e.EquipmentID,
@@ -119,16 +102,12 @@ SELECT
 FROM Equipment e
 JOIN Departments d ON e.DepartmentID = d.DepartmentID;
 
--- =========================================
 -- VIEW: Summary
--- =========================================
 CREATE VIEW EquipmentSummary AS
 SELECT EquipmentName, Type, Status
 FROM Equipment;
 
--- =========================================
 -- FUNCTION: Total Asset Value
--- =========================================
 DELIMITER //
 
 CREATE FUNCTION TotalAssetValue()
@@ -146,9 +125,7 @@ END //
 
 DELIMITER ;
 
--- =========================================
 -- PROCEDURE: Add Equipment
--- =========================================
 DELIMITER //
 
 CREATE PROCEDURE AddEquipment(
@@ -167,9 +144,7 @@ END //
 
 DELIMITER ;
 
--- =========================================
--- PROCEDURE: Count Equipment
--- =========================================
+-- PROCEDURE: Get Equipment Count
 DELIMITER //
 
 CREATE PROCEDURE GetEquipmentCount()
@@ -179,9 +154,7 @@ END //
 
 DELIMITER ;
 
--- =========================================
--- TRIGGER 1: Auto set default status
--- =========================================
+-- TRIGGER: Auto set default status
 DELIMITER //
 
 CREATE TRIGGER default_status
@@ -195,9 +168,7 @@ END //
 
 DELIMITER ;
 
--- =========================================
--- TRIGGER 2: Update status after maintenance
--- =========================================
+-- TRIGGER: Update status after maintenance
 DELIMITER //
 
 CREATE TRIGGER UpdateEquipmentStatus
@@ -211,15 +182,11 @@ END //
 
 DELIMITER ;
 
--- =========================================
 -- INDEX
--- =========================================
 CREATE INDEX idx_equipment_name
 ON Equipment(EquipmentName);
 
--- =========================================
 -- TEST QUERIES
--- =========================================
 SELECT * FROM Equipment;
 SELECT * FROM Maintenance;
 SELECT * FROM Purchases;
@@ -234,9 +201,12 @@ GROUP BY Type;
 
 SHOW DATABASES;
 ALTER USER 'root'@'localhost' IDENTIFIED BY '123456';
+
 USE office_management;
+
 ALTER TABLE Purchases
 MODIFY COLUMN Quantity INT DEFAULT 1;
+
 UPDATE Purchases SET Quantity = 2 WHERE PurchaseID = 1;
 UPDATE Purchases SET Quantity = 3 WHERE PurchaseID = 2;
 UPDATE Purchases SET Quantity = 1 WHERE PurchaseID = 3;
