@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, session
 import mysql.connector
 
 app = Flask(__name__)
+app.secret_key = 'office_secret_key'
 
 def get_db_connection():
     return mysql.connector.connect(
@@ -13,10 +14,40 @@ def get_db_connection():
     )
 
 # ======================
-# DASHBOARD (FIX IN USE)
+# LOGIN SYSTEM
+# ======================
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Users WHERE Username=%s AND Password=%s", (username, password))
+        user = cursor.fetchone()
+        db.close()
+
+        if user:
+            session['user'] = user['Username']
+            session['role'] = user['Role']
+            return redirect('/')
+        return "Invalid credentials"
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
+
+# ======================
+# DASHBOARD
 # ======================
 @app.route('/')
 def dashboard():
+    if 'user' not in session:
+        return redirect('/login')
+        
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
@@ -47,13 +78,15 @@ def dashboard():
 # ======================
 @app.route('/equipment')
 def equipment():
+    if 'user' not in session: return redirect('/login')
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
     cursor.execute("""
-        SELECT e.*, d.DepartmentName
+        SELECT e.*, d.DepartmentName, emp.EmployeeName
         FROM Equipment e
         JOIN Departments d ON e.DepartmentID = d.DepartmentID
+        LEFT JOIN Employees emp ON e.EmployeeID = emp.EmployeeID
         ORDER BY e.EquipmentID ASC
     """)
 
@@ -67,20 +100,25 @@ def equipment():
 # ======================
 @app.route('/add_equipment', methods=['GET', 'POST'])
 def add_equipment():
+    if 'user' not in session: return redirect('/login')
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
     if request.method == 'POST':
+        emp_id = request.form.get('employee')
+        emp_id = emp_id if emp_id and emp_id != "" else None
+
         cursor.execute("""
             INSERT INTO Equipment
-            (EquipmentName, Type, Unit, Status, DepartmentID)
-            VALUES (%s, %s, %s, %s, %s)
+            (EquipmentName, Type, Unit, Status, DepartmentID, EmployeeID)
+            VALUES (%s, %s, %s, %s, %s, %s)
         """, (
             request.form['name'],
             request.form['type'],
             request.form['unit'],
             request.form['status'],
-            request.form['department']
+            request.form['department'],
+            emp_id
         ))
 
         db.commit()
@@ -89,6 +127,9 @@ def add_equipment():
 
     cursor.execute("SELECT * FROM Departments")
     departments = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM Employees")
+    employees = cursor.fetchall()
 
     cursor.execute("SELECT DISTINCT Type FROM Equipment")
     types = [row['Type'] for row in cursor.fetchall()]
@@ -101,6 +142,7 @@ def add_equipment():
     return render_template(
         'add_equipment.html',
         departments=departments,
+        employees=employees,
         types=types,
         units=units
     )
@@ -110,6 +152,7 @@ def add_equipment():
 # ======================
 @app.route('/delete_equipment/<int:id>')
 def delete_equipment(id):
+    if 'user' not in session: return redirect('/login')
     db = get_db_connection()
     cursor = db.cursor()
 
@@ -120,103 +163,73 @@ def delete_equipment(id):
     return redirect('/equipment')
 
 # ======================
-# EDIT EQUIPMENT (NEW)
-# ======================
-@app.route('/edit_equipment/<int:id>', methods=['GET', 'POST'])
-def edit_equipment(id):
-    db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
-
-    if request.method == 'POST':
-        cursor.execute("""
-            UPDATE Equipment
-            SET EquipmentName=%s,
-                Type=%s,
-                Unit=%s,
-                Status=%s,
-                DepartmentID=%s
-            WHERE EquipmentID=%s
-        """, (
-            request.form['name'],
-            request.form['type'],
-            request.form['unit'],
-            request.form['status'],
-            request.form['department'],
-            id
-        ))
-
-        db.commit()
-        db.close()
-        return redirect('/equipment')
-
-    cursor.execute("SELECT * FROM Equipment WHERE EquipmentID=%s", (id,))
-    equipment = cursor.fetchone()
-
-    cursor.execute("SELECT * FROM Departments")
-    departments = cursor.fetchall()
-
-    db.close()
-
-    return render_template(
-        'edit_equipment.html',
-        equipment=equipment,
-        departments=departments
-    )
-
-# ======================
-# UPDATE EQUIPMENT AJAX (Sửa lỗi thiếu route cho nút Save)
+# EDIT / UPDATE EQUIPMENT
 # ======================
 @app.route('/update_equipment/<int:id>', methods=['POST'])
 def update_equipment(id):
-    data = request.get_json()
+    if 'user' not in session: return jsonify({"success": False}), 403
+    
     db = get_db_connection()
     cursor = db.cursor()
-    cursor.execute("""
-        UPDATE Equipment 
-        SET EquipmentName=%s, Type=%s, Unit=%s, Status=%s 
-        WHERE EquipmentID=%s
-    """, (data['name'], data['type'], data['unit'], data['status'], id))
+    
+    if request.is_json:
+        data = request.get_json()
+        cursor.execute("""
+            UPDATE Equipment
+            SET EquipmentName=%s, Type=%s, Unit=%s, Status=%s
+            WHERE EquipmentID=%s
+        """, (data['name'], data['type'], data['unit'], data['status'], id))
+    else:
+        emp_id = request.form.get('employee')
+        emp_id = emp_id if emp_id and emp_id != "" else None
+        cursor.execute("""
+            UPDATE Equipment
+            SET EquipmentName=%s, Type=%s, Unit=%s, Status=%s, DepartmentID=%s, EmployeeID=%s
+            WHERE EquipmentID=%s
+        """, (
+            request.form['name'], request.form['type'], request.form['unit'],
+            request.form['status'], request.form['department'], emp_id, id
+        ))
+
     db.commit()
     db.close()
-    return jsonify({"success": True})
+    
+    if request.is_json:
+        return jsonify({"success": True})
+    return redirect('/equipment')
 
 # ======================
-# AUTOCOMPLETE TYPE API
+# REPORTS
 # ======================
-@app.route('/api/types')
-def get_types():
+@app.route('/reports')
+def reports():
+    if 'user' not in session: return redirect('/login')
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
-    cursor.execute("SELECT DISTINCT Type FROM Equipment")
-    data = [row['Type'] for row in cursor.fetchall()]
+    cursor.execute("SELECT * FROM View_Equipment_By_Dept")
+    dept_report = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM View_Current_Usage")
+    usage_report = cursor.fetchall()
 
     db.close()
-    return jsonify(data)
-
-# ======================
-# AUTOCOMPLETE UNIT API
-# ======================
-@app.route('/api/units')
-def get_units():
-    db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
-
-    cursor.execute("SELECT DISTINCT Unit FROM Equipment")
-    data = [row['Unit'] for row in cursor.fetchall()]
-
-    db.close()
-    return jsonify(data)
+    return render_template('reports.html', dept_report=dept_report, usage_report=usage_report)
 
 # ======================
 # MAINTENANCE
 # ======================
 @app.route('/maintenance')
 def maintenance():
+    if 'user' not in session: return redirect('/login')
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM Maintenance")
+    cursor.execute("""
+        SELECT m.*, e.EquipmentName 
+        FROM Maintenance m 
+        JOIN Equipment e ON m.EquipmentID = e.EquipmentID
+    """)
     data = cursor.fetchall()
 
     db.close()
@@ -227,15 +240,19 @@ def maintenance():
 # ======================
 @app.route('/purchases')
 def purchases():
+    if 'user' not in session: return redirect('/login')
     db = get_db_connection()
     cursor = db.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM Purchases")
+    cursor.execute("""
+        SELECT p.*, e.EquipmentName 
+        FROM Purchases p 
+        JOIN Equipment e ON p.EquipmentID = e.EquipmentID
+    """)
     data = cursor.fetchall()
 
     db.close()
     return render_template('purchases.html', purchases=data)
 
-# ======================
 if __name__ == '__main__':
     app.run(debug=True)

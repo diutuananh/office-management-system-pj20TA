@@ -2,23 +2,21 @@
 <html>
 
 <head>
-
     <title>Equipment</title>
-
-    <link rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
     <div class="sidebar">
-
         <a href="/">Dashboard</a>
         <a href="/equipment">Equipment</a>
         <a href="/maintenance">Maintenance</a>
         <a href="/purchases">Purchases</a>
-
+        <a href="/reports">Reports</a>
+        {% if session.get('user') %}
+            <a href="/logout" style="color: #e74c3c;">Logout ({{ session['user'] }})</a>
+        {% endif %}
     </div>
 
     <div class="main">
@@ -43,7 +41,6 @@
             class="search-box">
 
         <table>
-
             <tr>
                 <th>ID</th>
                 <th>Name</th>
@@ -51,13 +48,12 @@
                 <th>Unit</th>
                 <th>Status</th>
                 <th>Department</th>
+                <th>Assigned To</th>
                 <th>Actions</th>
             </tr>
 
             {% for item in equipments %}
-
             <tr id="row-{{ item.EquipmentID }}">
-
                 <td>{{ item.EquipmentID }}</td>
 
                 <td>
@@ -76,27 +72,19 @@
                 </td>
 
                 <td>
-
                     <span class="view status">
-
                         {% set s = item.Status %}
-
                         {% if s == 'Available' %}
                             <span class="status available">{{ s }}</span>
-
                         {% elif s == 'In Use' %}
                             <span class="status in-use">{{ s }}</span>
-
                         {% elif s == 'Maintenance' %}
                             <span class="status maintenance">{{ s }}</span>
-
                         {% elif s == 'Broken' %}
                             <span class="status broken">{{ s }}</span>
-
                         {% else %}
                             <span class="status">{{ s }}</span>
                         {% endif %}
-
                     </span>
 
                     <select class="edit status" style="display:none;">
@@ -105,15 +93,13 @@
                         <option value="Maintenance" {% if item.Status=='Maintenance' %}selected{% endif %}>Maintenance</option>
                         <option value="Broken" {% if item.Status=='Broken' %}selected{% endif %}>Broken</option>
                     </select>
-
                 </td>
 
-                <td>
-                    {{ item.DepartmentName }}
-                </td>
+                <td>{{ item.DepartmentName }}</td>
+
+                <td>{{ item.EmployeeName if item.EmployeeName else 'Unassigned' }}</td>
 
                 <td>
-
                     <button onclick="enableEdit('{{ item.EquipmentID }}')"
                         class="add-btn"
                         style="padding:5px 10px;">
@@ -138,33 +124,22 @@
                         ">
                         Delete
                     </a>
-
                 </td>
-
             </tr>
-
             {% endfor %}
-
         </table>
-
     </div>
 
 <script>
-
 function enableEdit(id){
-
     let row = document.getElementById("row-" + id);
-
     row.querySelectorAll(".view").forEach(e => e.style.display = "none");
     row.querySelectorAll(".edit").forEach(e => e.style.display = "inline-block");
-
     row.querySelector("button[onclick*='saveEdit']").style.display = "inline-block";
 }
 
 function saveEdit(id){
-
     let row = document.getElementById("row-" + id);
-
     let data = {
         name: row.querySelector(".edit.name").value,
         type: row.querySelector(".edit.type").value,
@@ -183,32 +158,22 @@ function saveEdit(id){
             location.reload();
         }
     });
-
 }
 
 function searchTable(){
-
     let input = document.getElementById("searchInput");
     let filter = input.value.toLowerCase();
     let table = document.querySelector("table");
     let tr = table.getElementsByTagName("tr");
 
     for(let i = 1; i < tr.length; i++){
-
         let td = tr[i].getElementsByTagName("td")[1];
-
         if(td){
-
             let txtValue = td.textContent || td.innerText;
-
-            tr[i].style.display =
-                txtValue.toLowerCase().includes(filter)
-                ? ""
-                : "none";
+            tr[i].style.display = txtValue.toLowerCase().includes(filter) ? "" : "none";
         }
     }
 }
-
 </script>
 
 </body>

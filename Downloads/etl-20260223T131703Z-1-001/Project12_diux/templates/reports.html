@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reports - Office Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <a href="/">Dashboard</a>
+        <a href="/equipment">Equipment</a>
+        <a href="/maintenance">Maintenance</a>
+        <a href="/purchases">Purchases</a>
+        <a href="/reports" class="active">Reports</a>
+        <a href="/logout" style="color: #e74c3c; margin-top: 50px;">Logout</a>
+    </div>
+    <div class="main">
+        <div class="topbar">SYSTEM REPORTS</div>
+        <h2>Equipment by Department</h2>
+        <table>
+            <tr><th>Department</th><th>Total Equipment</th></tr>
+            {% for row in dept_report %}
+            <tr><td>{{ row.DepartmentName }}</td><td>{{ row.Total_Equipment }}</td></tr>
+            {% endfor %}
+        </table>
+        <br><br>
+        <h2>Current Assignment Status</h2>
+        <table>
+            <tr><th>Equipment</th><th>Assigned To</th><th>Status</th></tr>
+            {% for row in usage_report %}
+            <tr>
+                <td>{{ row.EquipmentName }}</td>
+                <td>{{ row.EmployeeName if row.EmployeeName else 'Unassigned' }}</td>
+                <td><span class="status {{ row.Status.lower().replace(' ', '-') }}">{{ row.Status }}</span></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>

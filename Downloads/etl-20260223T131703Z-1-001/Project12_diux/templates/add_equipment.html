@@ -2,12 +2,8 @@
 <html>
 
 <head>
-
     <title>Add Equipment</title>
-
-    <link rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
@@ -28,7 +24,6 @@
                 placeholder="Equipment Name"
                 required>
 
-            <!-- TYPE AUTOCOMPLETE -->
             <input
                 type="text"
                 name="type"
@@ -42,7 +37,6 @@
                 {% endfor %}
             </datalist>
 
-            <!-- UNIT AUTOCOMPLETE (FIX MỚI) -->
             <input
                 type="text"
                 name="unit"
@@ -57,25 +51,37 @@
             </datalist>
 
             <select name="status">
-
                 <option value="Available">Available</option>
+                <option value="In Use">In Use</option>
                 <option value="Maintenance">Maintenance</option>
-
+                <option value="Broken">Broken</option>
             </select>
 
-            <select name="department">
-
+            <select name="department" required>
+                <option value="" disabled selected>Select Department</option>
                 {% for d in departments %}
                 <option value="{{ d.DepartmentID }}">
                     {{ d.DepartmentName }}
                 </option>
                 {% endfor %}
+            </select>
 
+            <select name="employee">
+                <option value="">-- Assign to Employee (Optional) --</option>
+                {% for emp in employees %}
+                <option value="{{ emp.EmployeeID }}">
+                    {{ emp.EmployeeName }}
+                </option>
+                {% endfor %}
             </select>
 
             <button type="submit">
                 Add Equipment
             </button>
+
+            <div style="text-align: center; margin-top: 10px;">
+                <a href="/equipment" style="text-decoration: none; color: #666; font-size: 14px;">Back to List</a>
+            </div>
 
         </form>
 
