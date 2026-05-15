@@ -217,3 +217,26 @@ UPDATE Purchases SET Quantity = 6 WHERE PurchaseID = 7;
 UPDATE Purchases SET Quantity = 3 WHERE PurchaseID = 8;
 UPDATE Purchases SET Quantity = 7 WHERE PurchaseID = 9;
 UPDATE Purchases SET Quantity = 1 WHERE PurchaseID = 10;
+USE office_management;
+
+UPDATE Equipment SET EmployeeID = 1, Status = 'In Use' WHERE EquipmentID = 1;
+UPDATE Equipment SET EmployeeID = 2, Status = 'In Use' WHERE EquipmentID = 3;
+UPDATE Equipment SET EmployeeID = 3, Status = 'In Use' WHERE EquipmentID = 5;
+UPDATE Equipment SET EmployeeID = 1 WHERE EquipmentID = 1;
+UPDATE Equipment SET EmployeeID = 2 WHERE EquipmentID = 3;
+UPDATE Equipment SET EmployeeID = 3 WHERE EquipmentID = 5;
+
+CREATE OR REPLACE VIEW View_Current_Usage AS
+SELECT e.EquipmentName, emp.EmployeeName, e.Status
+FROM Equipment e
+LEFT JOIN Employees emp ON e.EmployeeID = emp.EmployeeID;
+
+CREATE OR REPLACE VIEW View_Equipment_By_Dept AS
+SELECT d.DepartmentName, COUNT(e.EquipmentID) AS Total_Equipment
+FROM Departments d
+LEFT JOIN Equipment e ON d.DepartmentID = e.DepartmentID
+GROUP BY d.DepartmentName;
+
+UPDATE Equipment SET EmployeeID = 4 WHERE EquipmentID = 2;
+UPDATE Equipment SET EmployeeID = 5 WHERE EquipmentID = 4;
+UPDATE Equipment SET EmployeeID = 6 WHERE EquipmentID = 6;
