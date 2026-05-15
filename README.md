@@ -1,44 +1,46 @@
 # Office Management System
 
-This is a simple Office Management System built using Flask, MySQL, HTML, CSS, and JavaScript. The system is designed to manage office equipment, departments, maintenance records, and purchase history.
+This is an Office Management System built using Flask, MySQL, HTML, CSS, and JavaScript. The system is designed to manage office equipment, departments, maintenance records, and purchase history with integrated user authentication and analytical reporting.
 
 ## Features
 
-- Dashboard displaying total equipment statistics
-- Equipment management (Add, Edit/Update, and Delete equipment)
-- Inline editing using AJAX (Fetch API) without reloading the page
-- Department-based equipment classification
-- Search functionality for equipment list
-- Autocomplete support for equipment type and unit
-- Maintenance tracking module
-- Purchase history tracking
-- Data visualization using Chart.js
+- User Authentication: Secure login and session management for system access.
+- Dashboard: Real-time display of total equipment statistics and status charts.
+- Equipment Management: Full CRUD (Add, Edit/Update, and Delete) functionality.
+- Inline Editing: AJAX-based (Fetch API) updates for equipment details without page reloads.
+- Assignment Tracking: Manage equipment distribution among employees and departments.
+- Reports Module: Analytical views for equipment distribution and current usage status.
+- Maintenance Tracking: Records for equipment repair history and service logs.
+- Purchase History: Tracking of procurement dates, costs, and quantities.
+- Data Visualization: Integrated charts using Chart.js for inventory insights.
 
 ## Technologies Used
 
 - Backend: Flask (Python)
-- Database: MySQL
-- Frontend: HTML, CSS, JavaScript
-- Charting: Chart.js
+- Database: MySQL (Relational Schema & SQL Views)
+- Frontend: HTML, CSS, JavaScript (ES6+)
+- Libraries: mysql-connector-python, Chart.js, Jinja2
 
 ## Project Structure
 
 ```
 Project12_diux/
 │
-├── app.py
-├── office_management.sql
+├── app.py                  # Core application logic and API routes
+├── office_management.sql   # Database schema, Views, and initialization data
 │
-├── templates/
-│   ├── dashboard.html
-│   ├── equipment.html
-│   ├── add_equipment.html
-│   ├── edit_equipment.html
-│   ├── maintenance.html
-│   └── purchases.html
+├── templates/              # Jinja2 templates
+│   ├── login.html          # User authentication portal
+│   ├── dashboard.html      # Stats overview
+│   ├── equipment.html      # Asset management list
+│   ├── add_equipment.html  # New asset registration
+│   ├── edit_equipment.html # Record modification
+│   ├── maintenance.html    # Maintenance records
+│   ├── purchases.html      # Purchase records
+│   └── reports.html        # Analytical reports and usage status
 │
 ├── static/
-│   └── style.css
+│   └── style.css           # Global system styling
 │
 └── README.md
 ```
@@ -102,30 +104,36 @@ python app.py
 ```
 http://127.0.0.1:5000
 ```
+## System Credentials
+
+- Username: admin
+- Password: 123456
 
 ## System Pages
 
-- Dashboard: Displays overall statistics and charts
-- Equipment: Displays list of equipment with inline edit capability
-- Add Equipment: Form to add new equipment
-- Maintenance: Displays maintenance records
-- Purchases: Displays purchase records
+- Login: Secure portal for system entry.
+- Dashboard: Displays overall statistics and status charts.
+- Equipment: List of equipment with inline edit and assignment details.
+- Reports: Detailed reports on equipment by department and assignment status.
+- Maintenance: Logs for repair and service history.
+- Purchases: Historical purchase records.
 
 ## API Endpoints
 
 - GET /api/types: Autocomplete for equipment types
 - GET /api/units: Autocomplete for measurement units
-- POST /update_equipment/<id>: Update equipment details via AJAX
+- POST /update_equipment/<id>: Update equipment details via AJAX (JSON/Form data).
 
 ## Notes
 
-- Ensure MySQL server is running before starting the application
-- Default Flask port is 5000
-- Database credentials must match your local MySQL configuration
+- SQL Optimization: Uses SQL Views (View_Equipment_By_Dept, View_Current_Usage) for reporting.
+- Session Management: Secure route protection using Flask-Session.
+- Ensure MySQL server is running before starting the application.
+- Database credentials must match your local MySQL configuration.
 
 ## Future Improvements
 
-- Implement user authentication system
-- Improve UI using Bootstrap or Tailwind CSS
-- Add pagination and filtering features
-- Deploy project to cloud hosting platforms
+- Improve UI using Bootstrap or Tailwind CSS.
+- Add pagination and advanced filtering features.
+- Export reports to PDF or Excel formats.
+- Deploy project to cloud hosting platforms.
